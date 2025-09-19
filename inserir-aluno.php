@@ -5,7 +5,6 @@ use Alura\Pdo\Domain\Model\Student;
 require 'vendor/autoload.php';
 
 $databasePath = __DIR__ . 'banco.sqlite';
-
 $pdo = new PDO('sqlite:' . $databasePath);
 
 $student = new Student(null, 'Mateus Guimarães', new DateTimeImmutable('2000-05-13'));

@@ -9,20 +9,20 @@ $pdo = new PDO('sqlite:' . $databasePath);
 
 $student = new Student(
     null,
-    'Stela Marisco Duarte',
-    new DateTimeImmutable('2000-12-30')
+    'teste',
+    new DateTimeImmutable('2011-08-12')
 );
 
-$sqlInsert = "INSERT INTO students (name, birth_date) VALUES(?, ?);";
+$sqlInsert = "INSERT INTO students (name, birth_date) VALUES(:name, :birth_date);";
 $statement = $pdo->prepare($sqlInsert);
 
-$statement->bindValue(1, $student->name());
-$statement->bindValue(2, $student->birthDate()->format('Y-m-d'));
+$statement->bindValue(':name', $student->name());
+$statement->bindValue(':birth_date', $student->birthDate()->format('Y-m-d'));
 
-$resultado = $statement->execute();
+$resultado = $statement->execute(); //retorna um Bool
 var_dump($resultado);
 
-//$sqlInsert = "INSERT INTO students (name, birth_date) VALUES('{$student->name()}', '{$student->birthDate()->format('Y-m-d')}');";
+$pdo = null;
 
-exit();
-var_dump($pdo->exec($sqlInsert));
+//$sqlInsert = "INSERT INTO students (name, birth_date) VALUES('{$student->name()}', '{$student->birthDate()->format('Y-m-d')}');";
+//var_dump($pdo->exec($sqlInsert));

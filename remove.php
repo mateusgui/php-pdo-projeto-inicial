@@ -2,8 +2,8 @@
 
 require 'vendor/autoload.php';
 
-$databasePath = __DIR__ . 'banco.sqlite';
-$pdo = new PDO('sqlite:' . $databasePath); // Novo objeto da classe PDO
+use Alura\Pdo\Infrastructure\Persistence\ConnectionCreator;
+$pdo = ConnectionCreator::createConnection();
 
 $sqlDelete = 'DELETE FROM students WHERE ID = ?;';
 $preparedStatement = $pdo->prepare('DELETE FROM students WHERE ID = ?;');

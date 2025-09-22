@@ -1,10 +1,13 @@
 <?php
 
-$databasePath = __DIR__ . 'banco.sqlite';
+require 'vendor/autoload.php';
 
-$pdo = new PDO('sqlite:' . $caminhoBanco);
+use Alura\Pdo\Infrastructure\Persistence\ConnectionCreator;
+$pdo = ConnectionCreator::createConnection();
 
 echo 'conectei';
+
+exit();
 
 $pdo->exec(
     'CREATE TABLE students (

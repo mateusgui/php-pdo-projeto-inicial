@@ -36,21 +36,6 @@ class PdoStudentRepository implements StudentRepository
         return $this->hydrateStudentList($stmt);
     }
 
-    private function hydrateStudentList(PDOStatement $stmt): array
-    {
-        $studentsList = [];
-
-        while($studentData = $stmt->fetch(PDO::FETCH_ASSOC)){
-            $studentsList[] = new Student(
-                $studentData['id'],
-                $studentData['name'],
-                new DateTimeImmutable ($studentData['birth_date'])
-            );
-        }
-
-        return $studentsList;
-    }
-
     public function save(Student $student): bool
     {
         if($student->id() === null){
@@ -58,6 +43,14 @@ class PdoStudentRepository implements StudentRepository
         }
 
         return $this->update($student);
+    }
+
+    public function remove(Student $student): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM students WHERE id = ?');
+        $stmt->bindValue(1, $student->id(), PDO::PARAM_INT);
+
+        return $stmt->execute();
     }
 
     private function insert(Student $student): bool
@@ -83,11 +76,24 @@ class PdoStudentRepository implements StudentRepository
         return $stmt->execute();
     }
 
-    public function remove(Student $student): bool
+    private function hydrateStudentList(PDOStatement $stmt): array
     {
-        $stmt = $this->pdo->prepare('DELETE FROM students WHERE id = ?');
-        $stmt->bindValue(1, $student->id(), PDO::PARAM_INT);
+        $studentsList = [];
 
-        return $stmt->execute();
+    /**
+     * Transforma um resultado de consulta PDO (PDOStatement) em um array de objetos Student.
+     *
+     * @param PDOStatement $stmt O resultado da consulta PDO pronta para ser percorrida.
+     * @return Student[] Um array de objetos da classe Student.
+     */
+        while($studentData = $stmt->fetch(PDO::FETCH_ASSOC)){
+            $studentsList[] = new Student(
+                $studentData['id'],
+                $studentData['name'],
+                new DateTimeImmutable ($studentData['birth_date'])
+            );
+        }
+
+        return $studentsList;
     }
 }

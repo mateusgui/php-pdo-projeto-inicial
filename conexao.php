@@ -7,8 +7,6 @@ $pdo = ConnectionCreator::createConnection();
 
 echo 'conectei';
 
-exit();
-
 $pdo->exec(
     'CREATE TABLE students (
     id INTEGER PRIMARY KEY,

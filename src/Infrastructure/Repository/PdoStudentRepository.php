@@ -12,23 +12,23 @@ use PDOStatement;
 
 class PdoStudentRepository implements StudentRepository
 {
-    private PDO $pdo;
+    private PDO $connection;
 
-    public function __construct()
+    public function __construct(PDO $connection) //Injeção de dependência
     {
-        $this->pdo = ConnectionCreator::createConnection();
+        $this->connection = $connection; //Já recebe a conexão pronta, então pode receber conexão de qualquer tipo de banco
     }
 
     public function all(): array
     {
-        $stmt = $this->pdo->query('SELECT * FROM students');
+        $stmt = $this->connection->query('SELECT * FROM students');
         return $this->hydrateStudentList($stmt);
     }
 
     public function studentsBirthAt(DateTimeInterface $birthDate): array
     {
         $sqlQuery = "SELECT * FROM students WHERE birth_date = :birthDate;";
-        $stmt = $this->pdo->prepare($sqlQuery);
+        $stmt = $this->connection->prepare($sqlQuery);
 
         $stmt->bindValue(':birthDate', $birthDate->format('Y-m-d'));
         $stmt->execute();
@@ -47,7 +47,7 @@ class PdoStudentRepository implements StudentRepository
 
     public function remove(Student $student): bool
     {
-        $stmt = $this->pdo->prepare('DELETE FROM students WHERE id = ?');
+        $stmt = $this->connection->prepare('DELETE FROM students WHERE id = ?');
         $stmt->bindValue(1, $student->id(), PDO::PARAM_INT);
 
         return $stmt->execute();
@@ -56,10 +56,10 @@ class PdoStudentRepository implements StudentRepository
     private function insert(Student $student): bool
     {
         $insertQuery = 'INSERT INTO students (name, birth_date) VALUES(:name, :birth_date);';
-        $stmt = $this->pdo->prepare($insertQuery);
+        $stmt = $this->connection->prepare($insertQuery);
 
         $stmt->bindValue(':name', $student->name());
-        $stmt->bindValue(':birthDate', $student->birthDate());
+        $stmt->bindValue(':birth_date', $student->birthDate()->format('Y-m-d'));
 
         return $stmt->execute();
     }
@@ -67,7 +67,7 @@ class PdoStudentRepository implements StudentRepository
     private function update(Student $student): bool
     {
         $updateQuery = 'UPDATE students SET name = :name, birth_date = :birth_date WHERE id = :id;';
-        $stmt = $this->pdo->prepare($updateQuery);
+        $stmt = $this->connection->prepare($updateQuery);
 
         $stmt->bindValue(':name', $student->name());
         $stmt->bindValue('birth_Date', $student->birthDate()->format('Y-m-d'));

@@ -4,16 +4,15 @@ require 'vendor/autoload.php';
 
 use Alura\Pdo\Domain\Model\Student;
 use Alura\Pdo\Infrastructure\Persistence\ConnectionCreator;
-$pdo = ConnectionCreator::createConnection();
+use Alura\Pdo\Infrastructure\Repository\PdoStudentRepository;
 
-$statement = $pdo->query('SELECT * FROM students'); //retorna um objeto da classe PDOStatement
+$connection = ConnectionCreator::createConnection();
+$studentRepository = new PdoStudentRepository($connection);
 
-while($studentData = $statement->fetch(PDO::FETCH_ASSOC)){ //Vai permanecer true enquanto existirem registros sendo retornados
-    $student = new Student($studentData['id'], $studentData['name'], new DateTimeImmutable($studentData['birth_date']));
+$studentList = $studentRepository->all();
 
-    echo $student->name() . ":" . $student->id() . "\n";
+foreach ($studentList as $student) {
+    echo "Nome: " . $student->name() . " Id: " . $student->id() . " Data de Nascimento: " . $student->birthDate()->format('Y-m-d') . " Idade: " . $student->age() . "\n";
 }
 
-$pdo = null;
-
-//var_dump($listaDeAlunos);
+var_dump($studentList);

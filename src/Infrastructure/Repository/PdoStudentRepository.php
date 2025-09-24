@@ -2,11 +2,13 @@
 
 namespace Alura\Pdo\Infrastructure\Repository;
 
+use Alura\Pdo\Domain\Model\Phone;
 use Alura\Pdo\Domain\Model\Student;
 use Alura\Pdo\Domain\Repository\StudentRepository;
 use Alura\Pdo\Infrastructure\Persistence\ConnectionCreator;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Exception;
 use PDO;
 use PDOStatement;
 
@@ -70,7 +72,7 @@ class PdoStudentRepository implements StudentRepository
         $stmt = $this->connection->prepare($updateQuery);
 
         $stmt->bindValue(':name', $student->name());
-        $stmt->bindValue('birth_Date', $student->birthDate()->format('Y-m-d'));
+        $stmt->bindValue('birth_date', $student->birthDate()->format('Y-m-d'));
         $stmt->bindValue('id', $student->id(), PDO::PARAM_INT);
 
         return $stmt->execute();
@@ -86,14 +88,40 @@ class PdoStudentRepository implements StudentRepository
      * @param PDOStatement $stmt O resultado da consulta PDO pronta para ser percorrida.
      * @return Student[] Um array de objetos da classe Student.
      */
-        while($studentData = $stmt->fetch(PDO::FETCH_ASSOC)){
-            $studentsList[] = new Student(
+        while($studentData = $stmt->fetch()){
+                $student = new Student(
                 $studentData['id'],
                 $studentData['name'],
                 new DateTimeImmutable ($studentData['birth_date'])
             );
+
+            $this->fillPhones($student);
+
+            $studentsList[] = $student;
         }
 
         return $studentsList;
+    }
+
+    private function fillPhones(Student $student): void
+    {
+        $sqlQuery = 'SELECT id, area_code, number FROM phones WHERE student_id = ?;';
+        $stmt = $this->connection->prepare($sqlQuery);
+
+        $stmt->bindValue(1, $student->id(), PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $phoneDataList = $stmt->fetchAll();
+
+        foreach ($phoneDataList as $phoneData) {
+            $phone = new Phone(
+                $phoneData['id'],
+                $phoneData['area_code'],
+                $phoneData['number']
+            );
+
+            $student->addPhone($phone);
+        }
     }
 }

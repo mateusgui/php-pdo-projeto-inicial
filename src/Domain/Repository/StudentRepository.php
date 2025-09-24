@@ -8,6 +8,7 @@ use DateTimeInterface;
 interface StudentRepository
 {
     public function all(): array;
+    public function allWithPhones(): array;
     public function studentsBirthAt(DateTimeInterface $birthDate): array;
     public function save(Student $student): bool;
     public function remove(Student $student): bool;

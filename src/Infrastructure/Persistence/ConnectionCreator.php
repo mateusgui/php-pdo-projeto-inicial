@@ -3,16 +3,28 @@
 namespace Alura\Pdo\Infrastructure\Persistence;
 
 use PDO;
+use PDOException;
 
 class ConnectionCreator
 {
     public static function createConnection() : PDO
     {
-        $databasePath = __DIR__ . '/../../../banco.sqlite';
+        $dsn = 'mysql:host=127.0.0.1;port=3306;dbname=estudoMySql;charset=utf8mb4';
+        
+        try {
+            $connection = new PDO($dsn, 'root', 'sua_senha_super_secreta');
+
+            $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Erro ao conectar com o banco de dados: " . $e->getMessage());
+        }
+
+        /*$databasePath = __DIR__ . '/../../../banco.sqlite';
         $connection = new PDO('sqlite:' . $databasePath);
 
         $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        $connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);*/
 
         return $connection;
     }

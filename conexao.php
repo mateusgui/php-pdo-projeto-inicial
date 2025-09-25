@@ -2,27 +2,17 @@
 
 require 'vendor/autoload.php';
 
+use Alura\Pdo\Domain\Model\Student;
 use Alura\Pdo\Infrastructure\Persistence\ConnectionCreator;
+use Alura\Pdo\Infrastructure\Repository\PdoStudentRepository;
 
 $pdo = ConnectionCreator::createConnection();
+$repository = new PdoStudentRepository($pdo);
 
-$pdo->exec("INSERT INTO phones (area_code, number, student_id) VALUES ('67', '99140-4154', 1), ('67', '99194-9429', 2);");
-exit();
+//$student = new Student(null, 'Patricia Guimarães', new DateTimeImmutable('1990-08-01'));
+//$repository->save($student);
 
-$createTableSql = '
-    CREATE TABLE IF NOT EXISTS students (
-        id INTEGER PRIMARY KEY,
-        name TEXT,
-        birth_date TEXT
-    );
+$sqlQuery = "INSERT INTO phones (area_code, number, student_id) VALUES ('67', '999999999', 2)";
+$pdo->exec($sqlQuery);
 
-    CREATE TABLE IF NOT EXISTS phones (
-        id INTEGER PRIMARY KEY,
-        area_code TEXT,
-        number TEXT,
-        student_id INTEGER,
-        FOREIGN KEY (student_id) REFERENCES students(id)
-    );
-';
-
-$pdo->exec($createTableSql);
+var_dump($repository->allWithPhones());
